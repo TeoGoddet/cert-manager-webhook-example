@@ -1,0 +1,27 @@
+{
+	"provider": "infomaniak",
+	"env": [
+		{
+			"name": "INFOMANIAK_TTL",
+			"value": "3600"
+		},
+		{
+			"name": "INFOMANIAK_ACCESS_TOKEN",
+			"valueFrom": {
+				"secretKeyRef": {
+					"name": "lego-provider-x-credentials",
+					"key": "x-api-key" 
+				}
+			}
+		},
+	    {
+			"name": "INFOMANIAK_ENDPOINT",
+			"valueFrom": {
+				"configMapKeyRef": {
+					"name": "lego-provider-x-configmap",
+					"key": "x-endpoint" 
+				}
+			}
+		}
+	]
+}

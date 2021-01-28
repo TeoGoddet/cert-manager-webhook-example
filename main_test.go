@@ -17,9 +17,11 @@ func TestRunsSuite(t *testing.T) {
 	// ChallengeRequest passed as part of the test cases.
 
 	fixture := dns.NewFixture(&customDNSProviderSolver{},
+		dns.SetBinariesPath("_out/kubebuilder/bin"),
 		dns.SetResolvedZone(zone),
+	        dns.SetResolvedFQDN("_acme-challenge."+zone),
 		dns.SetAllowAmbientCredentials(false),
-		dns.SetManifestPath("testdata/my-custom-solver"),
+		dns.SetManifestPath("testdata/lego-solver"),
 	)
 
 	fixture.RunConformance(t)
