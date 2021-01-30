@@ -1,54 +1,58 @@
-# ACME webhook example
+## lego webhook for cert-manager
 
-The ACME issuer type supports an optional 'webhook' solver, which can be used
-to implement custom DNS01 challenge solving logic.
+This repo contains an go-acme (lego) webhook DNS01 provider for cert-manager. 
+That means you can use any lego supported dns provider in cert-manager.
 
-This is useful if you need to use cert-manager with a DNS provider that is not
-officially supported in cert-manager core.
+See [https://github.com/jetstack/cert-manager]() and [https://github.com/jetstack/cert-manager-webhook-example]()
 
-## Why not in core?
+### State of the project
+This must be considered as an alpha project under testing.
+It need an updated version of cert-manager (See [https://github.com/jetstack/cert-manager/pull/3614]()) to work !
+Helm chart is not working, use deploy/manifests/
 
-As the project & adoption has grown, there has been an influx of DNS provider
-pull requests to our core codebase. As this number has grown, the test matrix
-has become un-maintainable and so, it's not possible for us to certify that
-providers work to a sufficient level.
+## Example configuration
+See [deploy/manifests/sample-issuer.yaml]() for an example issuer configuration.
+You need to provide the lego provider name and the required lego env var in k8s native format.
 
-By creating this 'interface' between cert-manager and DNS providers, we allow
-users to quickly iterate and test out new integrations, and then packaging
-those up themselves as 'extensions' to cert-manager.
+```yaml
+provider: <lego-provider-name>
+env:
+- name: <env-var-name>
+  value: <env-var-value>
+- name: <env-var-name>
+  valueFrom:
+    secretKeyRef:
+      name: <secret-name>
+      key: <secret-key>
+- name: INFOMANIAK_ENDPOINT
+  valueFrom:
+    configMapKeyRef:
+      name: <configmap-name>
+      key: <configmap-key>
+```
+## API Group and Name
+GROUP_NAME in the deployment must match the APIService group name and be configured in the issuer manifest.
+SOLVER_NAME (defaults to lego) can be changed and must match the name configured in the issuer and the APIservice.
 
-We can also then provide a standardised 'testing framework', or set of
-conformance tests, which allow us to validate the a DNS provider works as
-expected.
 
-## Creating your own webhook
+## RBAC
+The webhook deployment must have rights to fetch secret and config maps if needed.
 
-Webhook's themselves are deployed as Kubernetes API services, in order to allow
-administrators to restrict access to webhooks with Kubernetes RBAC.
+## Cluster Issuer
+The secrets and configmaps referenced in the config must be in the deployment namespace (to be verified).
 
-This is important, as otherwise it'd be possible for anyone with access to your
-webhook to complete ACME challenge validations and obtain certificates.
+## Tests
 
-To make the set up of these webhook's easier, we provide a template repository
-that can be used to get started quickly.
-
-### Creating your own repository
-
-### Running the test suite
-
-All DNS providers **must** run the DNS01 provider conformance testing suite,
-else they will have undetermined behaviour when used with cert-manager.
-
-**It is essential that you configure and run the test suite when creating a
-DNS01 webhook.**
-
-An example Go test file has been provided in [main_test.go]().
-
+An Go test file has been provided in [main_test.go]().
 You can run the test suite with:
 
 ```bash
 $ TEST_ZONE_NAME=example.com go test .
 ```
 
-The example file has a number of areas you must fill in and replace with your
-own options in order for tests to pass.
+## TODO
+- Adapt and Enhance the test suite (using lego, we can only set _\_acme-challenge_ DNS key and the tests create random keys)
+- Do extended test 
+- Clarify the CNAME following policy
+- Check is recreating the provider between Present and Cleanup is OK (probably not) and add a store system if needed.
+- Update the helm chart

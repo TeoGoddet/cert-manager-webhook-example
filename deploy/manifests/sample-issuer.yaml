@@ -1,0 +1,39 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: lego-issuer
+spec:
+  acme:
+    email: informatique@agepoly.ch
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: issuer-account-key
+    solvers:
+    - dns01:
+        webhook:
+          groupName: acme.agepoly.ch
+          solverName: lego-solver
+          config:
+            provider: infomaniak
+            env:
+            - name: INFOMANIAK_TTL
+              value: '3600'
+            - name: INFOMANIAK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: lego-provider-x-credentials
+                  key: x-api-key
+            - name: INFOMANIAK_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: lego-provider-x-configmap
+                  key: x-endpoint
+    - dns01:
+        webhook:
+          groupName: acme.agepoly.ch
+          solverName: lego-solver
+          config:
+            provider: httpreq
+            env:
+            - name: HTTPREQ_ENDPOINT
+              value: 'https://webhook.site/a6ff2b20-96c1-4af0-bc83-70739b6d95e9'

@@ -11,5 +11,10 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+_out/
+testdata/lego-solver/*.yaml
+__main__/
+
 # Ignore the built binary
 cert-manager-webhook-example
+webhook

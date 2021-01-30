@@ -14,5 +14,3 @@ require (
 )
 
 replace go.etcd.io/etcd/ => go.etcd.io/etcd/ v0.4.9
-
-replace github.com/jetstack/cert-manager => ./cert-manager
